@@ -302,7 +302,7 @@ const Chat = ({
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#00093A] font-['Inter_Tight'] font-normal">
+    <div className="flex flex-col h-full bg-[#00093A]/50 font-['Inter_Tight'] font-normal">
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-[#27272a] scrollbar-track-[#0A2166]/30 
                     scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
@@ -347,12 +347,12 @@ const Chat = ({
       `}</style>
 
       {/* Input Form */}
-      <div className="border-t border-[#081C59] p-4">
+      <div className="border-t border-[#081C59] p-4 bg-[#0A2166]/50 rounded-b-2xl">
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <input
             type="text"
-            className="flex-1 p-3 rounded-lg bg-[#0A2166] text-white border border-[#081C59] 
-                     focus:outline-none focus:border-[#27272a] placeholder-gray-400
+            className="flex-1 p-3 rounded-lg bg-[#0A2166]/50 text-white border border-white/50 
+                     focus:outline-none focus:border-white placeholder-gray-400
                      font-['Inter_Tight'] font-normal text-lg"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}

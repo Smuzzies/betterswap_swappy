@@ -24,10 +24,9 @@ const ChatModal = ({
       className="fixed inset-0 bg-black bg-opacity-50 flex md:items-end md:justify-end items-center justify-center z-50 font-['Inter_Tight'] font-normal md:p-5"
       onClick={handleOverlayClick}
     >
-      <div className="bg-[#00093A] text-white rounded-3xl shadow-xl relative w-full max-w-3xl md:h-[85vh] h-[80vh] flex flex-col
-                    border-[#081C59] border-[20px] overflow-hidden
-                    before:absolute before:inset-0 before:rounded-2xl before:border-[8px] before:border-[#0A2166]/50 before:m-1">
-        <div className="flex justify-between items-center p-4 bg-[#0A2166] shrink-0 relative z-10">
+      <div className="bg-[#00093A]/50 text-white rounded-3xl shadow-xl relative w-full max-w-3xl md:h-[85vh] h-[80vh] flex flex-col
+                    overflow-hidden backdrop-blur-sm">
+        <div className="flex justify-between items-center p-4 bg-[#0A2166]/50 shrink-0 relative z-10 rounded-t-2xl">
           <div className="flex items-center gap-3">
             <div className="w-16 h-16 relative shrink-0">
               <Image

@@ -29,7 +29,7 @@ export default function MainPage() {
       />
       
       <button 
-        className="fixed bottom-5 right-5 p-5 bg-[#27272a]/75 text-white rounded-full shadow-lg hover:bg-[#27272a]/90 transition focus:outline-none z-50 w-28 h-28"
+        className="fixed bottom-14 right-8 transition focus:outline-none z-50 w-16 h-16"
         onClick={handleMaximize}
       >
         <div className="relative w-full h-full">
