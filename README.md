@@ -1,8 +1,14 @@
-BetterSwap Swappy AI Agent.
+# BetterSwap Swappy AI Agent
 
-OPENAI Assistant API component for JS.
-Create .env.local and add:
+A component for integrating the **OPENAI Assistant API** into your JavaScript project.
 
+## Setup
+
+1. Clone this repository to your local machine.
+2. Create a `.env.local` file in the root directory.
+3. Add your OpenAI API credentials in the `.env.local` file:
+
+```env
 OPENAI_API_KEY="yourAPIkey"
 OPENAI_ASSISTANT_ID="assistantInstanceID"
 
