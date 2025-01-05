@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import styles from "./chat.module.css";
 import { AssistantStream } from "openai/lib/AssistantStream";
 import Markdown from "react-markdown";
+import Image from "next/image";
 // @ts-expect-error - no types for this yet
 import { AssistantStreamEvent } from "openai/resources/beta/assistants/assistants";
 import { RequiredActionFunctionToolCall } from "openai/resources/beta/threads/runs/runs";
+import { UserIcon } from '@heroicons/react/24/outline';
 
 type MessageProps = {
   role: "user" | "assistant" | "code";
@@ -14,26 +15,68 @@ type MessageProps = {
 };
 
 const UserMessage = ({ text }: { text: string }) => {
-  return <div className={styles.userMessage}>{text}</div>;
+  return (
+    <div className="flex items-center justify-end self-end mb-2">
+      <div className="bg-[#27272a] text-white p-3 rounded-lg max-w-[80%] font-['Inter_Tight'] font-normal text-lg">{text}</div>
+      <UserIcon className="h-7 w-7 text-white ml-2" />
+    </div>
+  );
 };
 
 const AssistantMessage = ({ text }: { text: string }) => {
   return (
-    <div className={styles.assistantMessage}>
-      <Markdown>{text}</Markdown>
+    <div className="flex items-center self-start mb-2">
+      <div className="w-8 h-8 mr-2 relative shrink-0">
+        <Image
+          src="/swappy.png"
+          alt="Swappy AI"
+          fill
+          className="object-contain"
+          priority
+        />
+      </div>
+      <div className="bg-[#0A2166]/50 text-white p-3 rounded-lg max-w-[80%] font-['Inter_Tight'] font-normal text-lg">
+        <Markdown>{text}</Markdown>
+      </div>
     </div>
   );
 };
 
 const CodeMessage = ({ text }: { text: string }) => {
   return (
-    <div className={styles.codeMessage}>
-      {text.split("\n").map((line, index) => (
-        <div key={index}>
-          <span>{`${index + 1}. `}</span>
-          {line}
-        </div>
-      ))}
+    <div className="flex items-center self-start mb-2 w-full">
+      <div className="w-8 h-8 mr-2 relative shrink-0">
+        <Image
+          src="/swappy.png"
+          alt="Swappy AI"
+          fill
+          className="object-contain"
+          priority
+        />
+      </div>
+      <div className="bg-[#0A2166]/70 text-[#27272a] p-3 rounded-lg font-mono overflow-x-auto max-w-[80%]">
+        {text.split("\n").map((line, index) => (
+          <div key={index}>
+            <span>{`${index + 1}. `}</span>
+            {line}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ThinkingIndicator = () => {
+  return (
+    <div className="flex justify-start mb-2 ml-12">
+      <span className="text-gray-400 font-['Inter_Tight'] font-normal flex items-center text-lg">
+        Thinking
+        <span className="text-4xl font-bold ml-2">
+          <span className="inline-block animate-bounce" style={{ animationDelay: '0s', animationDuration: '1s' }}>.</span>
+          <span className="inline-block animate-bounce" style={{ animationDelay: '0.2s', animationDuration: '1s' }}>.</span>
+          <span className="inline-block animate-bounce" style={{ animationDelay: '0.4s', animationDuration: '1s' }}>.</span>
+        </span>
+      </span>
     </div>
   );
 };
@@ -55,18 +98,26 @@ type ChatProps = {
   functionCallHandler?: (
     toolCall: RequiredActionFunctionToolCall
   ) => Promise<string>;
+  onClose: () => void;
+  messages: MessageProps[];
+  setMessages: React.Dispatch<React.SetStateAction<MessageProps[]>>;
+  threadId: string;
+  setThreadId: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const Chat = ({
-  functionCallHandler = () => Promise.resolve(""), // default to return empty string
+  functionCallHandler = () => Promise.resolve(""),
+  onClose,
+  messages,
+  setMessages,
+  threadId,
+  setThreadId
 }: ChatProps) => {
   const [userInput, setUserInput] = useState("");
-  const [messages, setMessages] = useState([]);
   const [inputDisabled, setInputDisabled] = useState(false);
-  const [threadId, setThreadId] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // automatically scroll to bottom of chat
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -74,17 +125,19 @@ const Chat = ({
     scrollToBottom();
   }, [messages]);
 
-  // create a new threadID when chat component created
+  // Only create a thread if we don't have one
   useEffect(() => {
     const createThread = async () => {
-      const res = await fetch(`/api/assistants/threads`, {
-        method: "POST",
-      });
-      const data = await res.json();
-      setThreadId(data.threadId);
+      if (!threadId) {  // Only create if no threadId exists
+        const res = await fetch(`/api/assistants/threads`, {
+          method: "POST",
+        });
+        const data = await res.json();
+        setThreadId(data.threadId);
+      }
     };
     createThread();
-  }, []);
+  }, [threadId]); // Add threadId to dependencies
 
   const sendMessage = async (text) => {
     const response = await fetch(
@@ -249,32 +302,77 @@ const Chat = ({
   }
 
   return (
-    <div className={styles.chatContainer}>
-      <div className={styles.messages}>
+    <div className="flex flex-col h-full bg-[#00093A] font-['Inter_Tight'] font-normal">
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-[#27272a] scrollbar-track-[#0A2166]/30 
+                    scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
         {messages.map((msg, index) => (
           <Message key={index} role={msg.role} text={msg.text} />
         ))}
+        {inputDisabled && <ThinkingIndicator />}
         <div ref={messagesEndRef} />
       </div>
-      <form
-        onSubmit={handleSubmit}
-        className={`${styles.inputForm} ${styles.clearfix}`}
-      >
-        <input
-          type="text"
-          className={styles.input}
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          placeholder="Enter your question"
-        />
-        <button
-          type="submit"
-          className={styles.button}
-          disabled={inputDisabled}
-        >
-          Send
-        </button>
-      </form>
+
+      {/* Code message scrollbar styling */}
+      <style jsx global>{`
+        /* Custom scrollbar for webkit browsers */
+        .overflow-x-auto::-webkit-scrollbar,
+        .overflow-y-auto::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-track,
+        .overflow-y-auto::-webkit-scrollbar-track {
+          background: rgba(10, 33, 102, 0.3);
+          border-radius: 10px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb,
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+          background: #27272a;
+          border-radius: 10px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb:hover,
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+          background: #323235;
+        }
+
+        /* Firefox */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #27272a rgba(10, 33, 102, 0.3);
+        }
+      `}</style>
+
+      {/* Input Form */}
+      <div className="border-t border-[#081C59] p-4">
+        <form onSubmit={handleSubmit} className="flex items-center gap-2">
+          <input
+            type="text"
+            className="flex-1 p-3 rounded-lg bg-[#0A2166] text-white border border-[#081C59] 
+                     focus:outline-none focus:border-[#27272a] placeholder-gray-400
+                     font-['Inter_Tight'] font-normal text-lg"
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            placeholder="Enter your question here..."
+            disabled={inputDisabled}
+          />
+          <button
+            type="submit"
+            className="px-6 py-3 bg-[#27272a] text-white rounded-lg hover:bg-[#27272a]/80 
+                     transition disabled:bg-gray-600 disabled:cursor-not-allowed
+                     font-['Inter_Tight'] font-normal text-lg"
+            disabled={inputDisabled}
+          >
+            Send
+          </button>
+        </form>
+        <p className="text-gray-400 text-sm mt-2 px-1 font-['Inter_Tight'] font-normal text-center">
+          AI responses are for informational purposes only and should not be considered as financial, legal, or professional advice. Please consult with qualified professionals for specific advice.
+        </p>
+      </div>
     </div>
   );
 };
