@@ -7,7 +7,7 @@ export async function POST() {
   const assistant = await openai.beta.assistants.create({
     instructions: "You are a helpful assistant.",
     name: "Quickstart Assistant",
-    model: "gpt-4o",
+    model: process.env.OPENAI_MODEL || "gpt-3.5-turbo-0125",
     tools: [
       { type: "code_interpreter" },
       {
