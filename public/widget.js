@@ -2,6 +2,10 @@
     // Create and inject required styles
     const styles = document.createElement('style');
     styles.textContent = `
+            html, body {
+            margin: 0;
+            padding: 0;
+        }
         .swappy-widget-container {
             position: fixed;
             bottom: 20px;
@@ -29,10 +33,12 @@
 
         .swappy-chat-modal {
             position: fixed;
-            bottom: 100px;
+            top: 50%;
             right: 20px;
+            transform: translateY(-50%);
             width: 450px;
-            height: 750px;
+            height: 600px !important;
+            margin-top: 30px;
             background: transparent;
             border-radius: 16px;
             display: none;

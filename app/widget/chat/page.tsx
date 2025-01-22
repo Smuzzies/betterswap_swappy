@@ -8,7 +8,7 @@ export default function WidgetChatPage() {
   const [threadId, setThreadId] = useState("");
 
   return (
-    <div className="h-screen w-full bg-transparent">
+    <div className="w-[450px] h-[600px] flex items-center justify-center">
       <ChatModal 
         messages={messages}
         setMessages={setMessages}
@@ -16,6 +16,7 @@ export default function WidgetChatPage() {
         setThreadId={setThreadId}
         onClose={() => {}}
         onMinimize={() => {}}
+        isWidget={true}
       />
     </div>
   );
